@@ -67,11 +67,10 @@ class MinecraftBot {
     }
 
     handleLogin() {
-        console.log('/username ‌§2§lETA§a‌b�t‌');
-
         setTimeout(() => {
             this.bot.pos = this.bot.entity.position;
             this.bot.core = new CoreClass(this.bot);
+            this.bot.chat('/username ‌§2§lETA§a‌b�t')
             selfcare(this.bot);
             
           setTimeout(() => {
