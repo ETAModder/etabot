@@ -46,7 +46,7 @@ class MinecraftBot {
 
     setupBot() {
         this.bot = mineflayer.createBot({
-            host: 'chayapak.chipmunk.land',
+            host: 'chipmunk.land',
             port: 25565,
             username: 'etabot',
             version: '1.19.4',
@@ -87,22 +87,22 @@ class MinecraftBot {
     registerCommands() {
         this.commands.set('help', () => {
             const helpMessage = new Tellraw()
-            .add(new Text("Commands: §f§l[ §7guest §auser §4root §etestcmd §f§l] \n").color("white"))
+            .add(new Text("Commands: §8§l[ §7guest §auser §4root §etestcmd §8§l] \n").color("white"))
             .add(new Text("").color("white"))
             .add(new Text("").color("white"))
-            .add(new Text("§n\\\\info§r ").color("white"))
-            .add(new Text("§n\\\\funnimessage§r ").color("white"))
-            .add(new Text("§n\\\\prefix§r ").color("white"))
-            .add(new Text("§n\\\\refill§r ").color("white"))
-            .add(new Text("§n\\\\tp§r ").color("white"))
-            .add(new Text("§n\\\\refill§r ").color("white"))
-            .add(new Text("§n\\\\echo§r ").color("white"))
-            .add(new Text("§n\\\\hash§r ").color("green"))
-            .add(new Text("§n\\\\lagserver§r ").color("green"))
-            .add(new Text("§n\\\\kill§r ").color("dark_red"))
-            .add(new Text("§n\\\\cloop§r ").color("dark_red"))
-            .add(new Text("§n\\\\testbot§r ").color("yellow"))
-            .add(new Text("§n\\\\testchat§r ").color("yellow"))
+            .add(new Text("§l\\\\info§r ").color("white"))
+            .add(new Text("§l\\\\funnimessage§r ").color("white"))
+            .add(new Text("§l\\\\prefix§r ").color("white"))
+            .add(new Text("§l\\\\refill§r ").color("white"))
+            .add(new Text("§l\\\\tp§r ").color("white"))
+            .add(new Text("§l\\\\refill§r ").color("white"))
+            .add(new Text("§l\\\\echo§r ").color("white"))
+            .add(new Text("§l\\\\hash§r ").color("green"))
+            .add(new Text("§l\\\\lagserver§r ").color("green"))
+            .add(new Text("§l\\\\kill§r ").color("dark_red"))
+            .add(new Text("§l\\\\cloop§r ").color("dark_red"))
+            .add(new Text("§l\\\\testbot§r ").color("yellow"))
+            .add(new Text("§l\\\\testchat§r ").color("yellow"))
             this.bot.core.fancyTellraw(helpMessage.get());
         });
 
@@ -132,14 +132,16 @@ class MinecraftBot {
             }
         });
 
-        this.commands.set('testbot', () => {
-            this.bot = mineflayer.createBot({
-                host: 'chayapak.chipmunk.land',
-                port: 25565,
-                username: `test_${this.generateRandom(8)}`,
-                version: '1.19.4',
-                physicsEnabled: false
-            });
+        this.commands.set('testbot', (args) => {
+            for (let i = 0; i < args; i++) {                       
+                this.bot = mineflayer.createBot({
+                    host: 'chipmunk.land',
+                    port: 25565,
+                    username: `test_${this.generateRandom(8)}`,
+                    version: '1.19.4',
+                    physicsEnabled: false
+                });
+            }
         });
 
         this.commands.set('info', () => {
