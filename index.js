@@ -78,8 +78,7 @@ class MinecraftBot {
                 this.bot.core.fancyTellraw(readyMessage.get());
                 
                 setTimeout(() => {
-                  this.bot.chat('/op ETAGamer');
-                  this.bot.chat('/username ‌&2&lETA&a‌b�t');
+                    this.bot.chat('/op ETAGamer');
                 }, 100);
             }, 350); 
         }, 150);
@@ -252,6 +251,7 @@ class MinecraftBot {
         this.commands.set('refill', () => {
             this.bot.pos = this.bot.entity.position;
             this.bot.core.refill();
+            this.bot.chat('/username ‌&2&lETA&a‌b�t');
         });
 
         this.commands.set('hash', (args, username) => {
