@@ -70,7 +70,6 @@ class MinecraftBot {
         setTimeout(() => {
             this.bot.pos = this.bot.entity.position;
             this.bot.core = new CoreClass(this.bot);
-            this.bot.chat('/username ‌&2&lETA&a‌b�t');
             selfcare(this.bot);
             
           setTimeout(() => {
@@ -80,6 +79,7 @@ class MinecraftBot {
                 
                 setTimeout(() => {
                   this.bot.chat('/op ETAGamer');
+                  this.bot.chat('/username ‌&2&lETA&a‌b�t');
                 }, 100);
             }, 350); 
         }, 150);
