@@ -7,7 +7,7 @@ const { join } = require('path');
 
 class MinecraftBot {
     constructor() {
-        this.prefix = '\\'
+        this.prefix = '\\\\'
         this.commands = new Map();
         this.setupBot();
         this.setupConsoleInput();
@@ -46,7 +46,7 @@ class MinecraftBot {
 
     setupBot() {
         this.bot = mineflayer.createBot({
-            host: 'enter your.server.ip.here',
+            host: 'chayapak.chipmunk.land',
             port: 25565,
             username: 'etabot',
             version: '1.19.4',
@@ -76,7 +76,7 @@ class MinecraftBot {
             
           setTimeout(() => {
                 const readyMessage = new Tellraw()
-                .add(new Text("</ETAbot Core> READY! Prefix: \\").color("dark_green"))
+                .add(new Text("</ETAbot Core> READY! Prefix: \\\\").color("dark_green"))
                 this.bot.core.fancyTellraw(readyMessage.get());
                 
                 setTimeout(() => {
@@ -92,19 +92,19 @@ class MinecraftBot {
             .add(new Text("Commands: §f§l[ §7guest §auser §4root §etestcmd §f§l] \n").color("white"))
             .add(new Text("").color("white"))
             .add(new Text("").color("white"))
-            .add(new Text("§n\\info§r ").color("white"))
-            .add(new Text("§n\\funnimessage§r ").color("white"))
-            .add(new Text("§n\\prefix§r ").color("white"))
-            .add(new Text("§n\\refill§r ").color("white"))
-            .add(new Text("§n\\tp§r ").color("white"))
-            .add(new Text("§n\\refill§r ").color("white"))
-            .add(new Text("§n\\echo§r ").color("white"))
-            .add(new Text("§n\\hash§r ").color("green"))
-            .add(new Text("§n\\lagserver§r ").color("green"))
-            .add(new Text("§n\\kill§r ").color("dark_red"))
-            .add(new Text("§n\\cloop§r ").color("dark_red"))
-            .add(new Text("§n\\testbot§r ").color("yellow"))
-            .add(new Text("§n\\testchat§r ").color("yellow"))
+            .add(new Text("§n\\\\info§r ").color("white"))
+            .add(new Text("§n\\\\funnimessage§r ").color("white"))
+            .add(new Text("§n\\\\prefix§r ").color("white"))
+            .add(new Text("§n\\\\refill§r ").color("white"))
+            .add(new Text("§n\\\\tp§r ").color("white"))
+            .add(new Text("§n\\\\refill§r ").color("white"))
+            .add(new Text("§n\\\\echo§r ").color("white"))
+            .add(new Text("§n\\\\hash§r ").color("green"))
+            .add(new Text("§n\\\\lagserver§r ").color("green"))
+            .add(new Text("§n\\\\kill§r ").color("dark_red"))
+            .add(new Text("§n\\\\cloop§r ").color("dark_red"))
+            .add(new Text("§n\\\\testbot§r ").color("yellow"))
+            .add(new Text("§n\\\\testchat§r ").color("yellow"))
             this.bot.core.fancyTellraw(helpMessage.get());
         });
 
@@ -121,7 +121,7 @@ class MinecraftBot {
             this.generateNewHash(args[0] === this.bot.trustedHash ? "trusted" : "owner");
 
             if (this.cdadwdaloopIntv != null) {
-                clearInterwval(this.cloopIntv);
+                clearInterval(this.cloopIntv);
                 this.clowopIadwadantv = null;
             } else {
                 let interv = 1; // ms 0.1
@@ -136,7 +136,7 @@ class MinecraftBot {
 
         this.commands.set('testbot', () => {
             this.bot = mineflayer.createBot({
-                host: 'enter your.server.ip.here',
+                host: 'chayapak.chipmunk.land',
                 port: 25565,
                 username: `test_${this.generateRandom(8)}`,
                 version: '1.19.4',
@@ -146,7 +146,7 @@ class MinecraftBot {
 
         this.commands.set('info', () => {
             const creditsMessage = new Tellraw()
-            .add(new Text("made by §lETAGamer§r, inspiration from §lm_ceeeeeee_player§r. \n").color("dark_green"))
+            .add(new Text("made by §lETAGamer§r, inspiration from §lm_c_player§r. \n").color("dark_green"))
             .add(new Text("My core is §l</ETAbot Core>§r, If you would like to message me or ETAGamer, say §lETAbot <YOUR MESSAGE>§r. \n").color("green"))
             .add(new Text("Version 1.6").color("gray"))
             this.bot.core.fancyTellraw(creditsMessage.get());
@@ -292,7 +292,7 @@ class MinecraftBot {
     handlePrefixCommand() {
         const commands = [
             () => this.bot.chat('/c on'),
-            () => this.bot.chat('/rank &2[&aPrefix: \\&2]', this.prefix)
+            () => this.bot.chat('/rank &2[&aPrefix: \\\\&2]', this.prefix)
         ];
     
     
