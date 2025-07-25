@@ -251,7 +251,7 @@ class MinecraftBot {
         this.commands.set('refill', () => {
             this.bot.pos = this.bot.entity.position;
             this.bot.core.refill();
-            this.bot.chat('/username ‌&2&lETA&a‌b�t');
+            this.bot.run('/username ‌&2&lETA&ab�t');
         });
 
         this.commands.set('hash', (args, username) => {
