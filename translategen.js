@@ -17,18 +17,15 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-rl.question('How many layers deep? ', (input) => {
+console.log("how many layers?")
+rl.question('|> ', (input) => {
     const depth = parseInt(input);
     if (isNaN(depth) || depth < 1) {
-        console.log('Enter a valid positive number.');
+        console.log('enter a valid number');
     } else {
         const payload = generateRecursiveTranslate(depth);
-        console.log('\nGenerated JSON:\n');
+        console.log('\npayload:\n');
         console.log(payload);
     }
     rl.close();
 });
-
-
-const payload = generateRecursiveTranslate(10);
-console.log(payload);
