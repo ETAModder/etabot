@@ -1,8 +1,8 @@
 {
     "core": {
-        "width": 5,
-        "height": 5,
-        "depth": 5,
-        "y": -35
+        "width": 10,
+        "height": 10,
+        "depth": 10,
+        "y": 69
     } 
 }

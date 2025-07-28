@@ -69,6 +69,7 @@ class MinecraftBot {
         setTimeout(() => {
             this.bot.pos = this.bot.entity.position;
             this.bot.core = new CoreClass(this.bot);
+            this.handlePrefixCommand();
             selfcare(this.bot);
             
           setTimeout(() => {
@@ -89,16 +90,17 @@ class MinecraftBot {
             .add(new Text("Commands: §8§l[ §7guest §auser §4root §etestcmd §8§l] \n").color("white"))
             .add(new Text("").color("white"))
             .add(new Text("").color("white"))
-            .add(new Text("§l\\\\info§r ").color("white"))
-            .add(new Text("§l\\\\funnimessage§r ").color("white"))
-            .add(new Text("§l\\\\prefix§r ").color("white"))
-            .add(new Text("§l\\\\refill§r ").color("white"))
-            .add(new Text("§l\\\\tp§r ").color("white"))
-            .add(new Text("§l\\\\echo§r ").color("white"))
+            .add(new Text("§l\\\\info§r ").color("grey"))
+            .add(new Text("§l\\\\funnimessage§r ").color("grey"))
+            .add(new Text("§l\\\\prefix§r ").color("grey"))
+            .add(new Text("§l\\\\refill§r ").color("grey"))
+            .add(new Text("§l\\\\tp§r ").color("grey"))
+            .add(new Text("§l\\\\echo§r ").color("grey"))
             .add(new Text("§l\\\\hash§r ").color("green"))
             .add(new Text("§l\\\\lagserver§r ").color("green"))
             .add(new Text("§l\\\\kill§r ").color("dark_red"))
             .add(new Text("§l\\\\cloop§r ").color("dark_red"))
+            .add(new Text("§l\\\\crash§r ").color("dark_red"))
             .add(new Text("§l\\\\testbot§r ").color("yellow"))
             .add(new Text("§l\\\\testchat§r ").color("yellow"))
             this.bot.core.fancyTellraw(helpMessage.get());
@@ -175,22 +177,11 @@ class MinecraftBot {
             // Update version and info regularly!
         });
 
-        this.commands.set('prefix', () => {
-            this.handlePrefixCommand();
-        });
-
         this.commands.set('auth', () => {
             const authMessage = new Tellraw()
             .add(new Text("Coming soon cause im cringe!").color("dark_green"))
             this.bot.core.fancyTellraw(authMessage.get());
         });
-
-        this.commands.set('crash', (args) => {
-            const target = args[0];
-            const customItem = `{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":[{"translate":"%1$s,%1$s","with":["eta"]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}`;
-            this.bot.core.run(`/tellraw ${target} ${customItem}`);
-        });
-
 
         this.commands.set('lagserver', (args) => {
             if (args[0] !== this.bot.trustedHash && args[0] !== this.bot.ownerHash) {
@@ -258,7 +249,6 @@ class MinecraftBot {
         this.commands.set('refill', () => {
             this.bot.pos = this.bot.entity.position;
             this.bot.core.refill();
-            this.bot.chat('/username &2&lETA&ab�t');
         });
 
         this.commands.set('hash', (args, username) => {
@@ -298,10 +288,10 @@ class MinecraftBot {
     handlePrefixCommand() {
         const commands = [
             () => this.bot.chat('/c on'),
-            () => this.bot.chat('/rank &2[&aPrefix: \\\\&2]', this.prefix)
+            () => this.bot.chat('/prefix &8[&2&l\\\\&ahelp&8]', this.prefix),
+            () => this.bot.chat('/nick &7&lETA&7b�t'),
+            () => this.bot.chat('/skin ETAGamer')
         ];
-    
-    
     
         commands.forEach((cmd, index) => {
             setTimeout(cmd, index * 100);
@@ -334,6 +324,8 @@ class MinecraftBot {
             if (this.bot) {
                 if (input.startsWith('/')) {
                     this.bot.core.run(input);
+                } else if (input.startsWith('c:')) {
+                    this.bot.chat(`${input}`)
                 } else {
                     this.bot.core.run(`/say ${input}`);
                 }
