@@ -43,7 +43,6 @@ function delay(time) {
     this.bot.core.run(`/vanish ${this.bot.username} enable`)
     await delay(2)
   }
-    //bot.chat(`/prefix [prefix !help]`) // <- not implemented //wdym // prefix selfcare = not done //ok
   })
   }
   module.exports = { selfcare };
