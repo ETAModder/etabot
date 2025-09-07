@@ -99,6 +99,7 @@ class MinecraftBot {
             .add(new Text("§l\\\\refill§r ").color("white"))
             .add(new Text("§l\\\\uuids§r ").color("white"))
             .add(new Text("§l\\\\tp§r ").color("white"))
+            .add(new Text("§l\\\\joke§r ").color("white"))
             .add(new Text("§l\\\\echo§r ").color("white"))
             .add(new Text("§l\\\\cloop§r ").color("white"))
             .add(new Text("§l\\\\hash§r ").color("green"))
@@ -112,6 +113,12 @@ class MinecraftBot {
 
         this.commands.set('tp', () => {
             this.bot.core.run('tp @e[type=player] ETAGamer');
+        });
+
+        this.commands.set('joke', () => {
+            fetch('https://official-joke-api.appspot.com/random_joke')
+                .then(res => res.json())
+                .then(data => this.bot.chat(`&a&l&o${data.setup}&r &2&m-&r &a&l&o${data.punchline}&r`))
         });
 
         this.commands.set('kill', (args) => {
@@ -138,7 +145,7 @@ class MinecraftBot {
 
         this.commands.set('testbot', (args) => {
             for (let i = 0; i < args; i++) {                       
-                this.bot = mineflayer.createBot({
+                this.testbot = mineflayer.createBot({
                     host: 'chipmunk.land',
                     port: 25565,
                     username: `test_${this.generateRandom(8)}`,
@@ -151,8 +158,8 @@ class MinecraftBot {
         this.commands.set('info', () => {
             const creditsMessage = new Tellraw()
             .add(new Text("made by §lETAGamer§r, inspiration from §lm_c_player§r. \n").color("dark_green"))
-            .add(new Text("My core is §l</ETAbot Core>§r, If you would like to message me or ETAGamer, say §lETAbot <YOUR MESSAGE>§r. \n").color("green"))
-            .add(new Text("Version 1.6").color("gray"))
+            .add(new Text("My core is §l</ETAbot Core>").color("green"))
+            .add(new Text("§oVersion 1.6§r").color("gray"))
             this.bot.core.fancyTellraw(creditsMessage.get());
             // Update version and info regularly!
         });
