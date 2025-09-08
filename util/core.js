@@ -8,7 +8,7 @@ class CoreClass {
     this.client = client;
     this.commandBlocks = [];
     this.used = 0;
-    this.corepos = { x: 666, y: 150, z: 333 };
+    this.corepos = { x: 0, y: 0, z: 0 };
     this.totalCommandsRun = 0;
     this.startTime = Date.now();
     this.transaction_id = [];
@@ -38,7 +38,7 @@ class CoreClass {
 
     this.corepos = { x: core.x, y: core.y, z: core.z };
     this.client.chat(
-      `/fill ${core.x} ${core.y} ${core.z} ${core.x2} ${core.y2} ${core.z2} minecraft:repeating_command_block`
+      `/fill ${core.x} ${core.y} ${core.z} ${core.x2} ${core.y2} ${core.z2} minecraft:repeating_command_block replace`
     );
 
     for (let x = core.x; x <= core.x2; x++) {
