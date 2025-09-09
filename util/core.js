@@ -18,7 +18,7 @@ class CoreClass {
 
   refill() {
     const config = require("../config.json");
-    const pos = this.client.entity?.position; // Ensure entity exists before accessing position
+    const pos = this.client.entity.position; // Ensure entity exists before accessing position
     this.commandBlocks = [];
 
     // Check if the bot's position is defined

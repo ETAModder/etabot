@@ -16,7 +16,7 @@ let filterInterval;
 
 class MinecraftBot {
     constructor() {
-        this.prefixes = ['\\\\', 'eta:', 'etabot:', '‌', 'ｅｔａ：', 'ᴇᴛᴀ:', '⁡​'];
+        this.prefix = '\\\\';
         this.commands = new Map();
         this.setupBot();
         this.setupConsoleInput();
@@ -59,7 +59,7 @@ class MinecraftBot {
 
     setupBot() {
         this.bot = mineflayer.createBot({
-            host: 'kaboom.pw',
+            host: 'chipmunk.land',
             port: 25565,
             username: `${this.generateRandom(4)}:E:${this.generateRandom(4)}`,
             version: '1.19.4',
@@ -110,6 +110,7 @@ class MinecraftBot {
             .add(new Text("§l\\\\funnimessage§r ").color("white"))
             .add(new Text("§l\\\\refill§r ").color("white"))
             .add(new Text("§l\\\\uuids§r ").color("white"))
+            .add(new Text("§l\\\\fibonacci§r ").color("white"))
             .add(new Text("§l\\\\tp§r ").color("white"))
             .add(new Text("§l\\\\core§r ").color("white"))
             .add(new Text("§l\\\\joke§r ").color("white"))
@@ -137,38 +138,55 @@ class MinecraftBot {
             this.bot.core.run(`${coreRun}`)
         });
 
+        this.commands.set('fibonacci', (args) => {
+            const n = parseInt(args[0])
+            if (isNaN(n) || n < 0) return this.bot.chat("&cInvalid number")
+
+            function fib(x) {
+                if (x < 2) return x
+                let a = 0, b = 1
+                for (let i = 2; i <= x; i++) {
+                    const t = a + b
+                    a = b
+                    b = t
+                }
+                return b
+            }
+
+            this.bot.chat(`&aResult(${n}) = &b${fib(n)}`)
+        })
+
         this.commands.set('testlmao', () => {
             this.bot.core.run(`/title ETAGamer title ${translatePayload}`)
             this.bot.core.run(`/title ETAGamer actionbar ${translatePayload}`)
             this.bot.core.run(`/tellraw ETAGamer ${translatePayload}`)
         });
 
-        this.commands.set('sysinfo', () => {
+        this.commands.set('system', () => {
             const info = {
                 hostname: os.hostname(),
                 platform: os.platform(),
                 release: os.release(),
                 arch: os.arch(),
-                cpuModel: os.cpus()[0].model,
-                cpuCores: os.cpus().length,
-                totalMemory: `${(os.totalmem() / 1024 / 1024 / 1024).toFixed(2)} GB`,
-                freeMemory: `${(os.freemem() / 1024 / 1024 / 1024).toFixed(2)} GB`,
+                cpumodel: os.cpus()[0].model,
+                cpucores: os.cpus().length,
+                totalmem: `${(os.totalmem() / 1024 / 1024 / 1024).toFixed(2)} GB`,
+                freemem: `${(os.freemem() / 1024 / 1024 / 1024).toFixed(2)} GB`,
                 uptime: `${(os.uptime() / 3600).toFixed(2)} hrs`,
-                userInfo: os.userInfo().username,
-                homeDir: os.userInfo().homedir,
-                tempDir: os.tmpdir(),
-                loadAverage: os.loadavg().map(n => n.toFixed(2)).join(', '),
-                networkInterfaces: Object.keys(os.networkInterfaces()).join(', '),
+                userinfo: os.userInfo().username,
+                homedir: os.userInfo().homedir,
+                tempdir: os.tmpdir(),
+                loadaverage: os.loadavg().map(n => n.toFixed(2)).join(', '),
+                netinterfaces: Object.keys(os.networkInterfaces()).join(', '),
                 endianness: os.endianness(),
-                numProcesses: process.cpuUsage().user // rough approximation
+                numprocs: process.cpuUsage().user
             };
 
-            let message = 'System Info\n';
+            let message = '';
             for (const [key, value] of Object.entries(info)) {
-                message += `${key}: ${value}\n`;
+                message = `${key}: ${value}`;
+                this.bot.core.run(`/bcraw &2> &a&l${key}&2: &a${value}`);
             }
-
-            this.bot.core.run(`/bcraw &8[&2ETAinfo&8]&7: &a${message}`);
         });
 
         this.commands.set('filter', (args) => {
@@ -255,7 +273,7 @@ class MinecraftBot {
                 console.log('----------------------')
                 console.log('SOMEONE KILLED THE BOT')
                 console.log('----------------------')
-                botkill
+                this.bot.quit();
                }, interv);
             }
         });
@@ -277,7 +295,6 @@ class MinecraftBot {
             .add(new Text("made by §lETAGamer§r, inspiration from §lm_c_player§r. \n").color("dark_green"))
             .add(new Text("My core is §l</ETAbot Core> §r ").color("green"))
             .add(new Text("§oVersion 1.6§r \n").color("gray"))
-            .add(new Text(`Current prefixes: ${this.prefixes.join(", ")} : `).color("gray"))
             .add(new Text(`Core Position: ${JSON.stringify(this.bot.core.corepos)} : `).color("green"))
             .add(new Text(`Total Commands Run: ${this.bot.core.totalCommandsRun} : `).color("green"))
             .add(new Text(`Start Time: ${new Date(this.bot.core.startTime).toLocaleString()}`).color("green"))
@@ -317,10 +334,14 @@ class MinecraftBot {
                     return;
                 }
                 if (stderr) {
-                    this.bot.chat(`&cSTDERROR: &c${stderr}`);
+                    stderr.split("\n").forEach(line => {
+                        if (line.trim().length) this.bot.chat(`&cSTDERROR: &c${line}`);
+                    });
                     return;
                 }
-                this.bot.chat(`&aSTDOUT: &a${stdout}`);
+                stdout.split("\n").forEach(line => {
+                    if (line.trim().length) this.bot.chat(`&aSTDOUT: &a${line}`);
+                });
             });
         });
 
@@ -539,14 +560,11 @@ class MinecraftBot {
 
     handleMessage(message, username) {
         if (username === this.bot.username) return;
-        if (message.startsWith('Command set:') || message.startsWith('ETAbot ')) return;
+        if (message.startsWith('Command set:') || message.startsWith('ETABot ')) return;
 
-        console.log(`<${username}> ${message}`);
+        if (!message.startsWith(this.prefix)) return;
 
-        const usedPrefix = this.prefixes.find(p => message.startsWith(p));
-        if (!usedPrefix) return;
-
-        const [command, ...args] = message.slice(usedPrefix.length).split(' ');
+        const [command, ...args] = message.slice(this.prefix.length).split(' ');
         const commandHandler = this.commands.get(command);
 
         if (commandHandler) {
