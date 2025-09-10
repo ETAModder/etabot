@@ -115,3 +115,4 @@ class CoreClass {
 }
 
 module.exports = { CoreClass };
+

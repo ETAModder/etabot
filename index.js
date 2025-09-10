@@ -16,12 +16,48 @@ let filterInterval;
 
 class MinecraftBot {
     constructor() {
-        this.prefix = '\\\\';
+        this.prefixes = [
+            '\\\\',
+            'eta:',
+            'etabot:',
+            'radium:',
+            'rad:',
+            'ra:',
+            '🔛🔝',
+            '☠',
+            '📉',
+            'ඞ',
+            'ɇ',
+            'ᐩ',
+            'ⓔ',
+            'Ⓔ',
+            '𝐄',
+            '𝔼',
+            '€',
+            'ₑ',
+            '℮',
+            '𝐞',
+            '𝕖',
+            '🄴',
+            '🅴',
+            ''
+        ]
         this.commands = new Map();
         this.setupBot();
         this.setupConsoleInput();
         this.cloopIntv = null;
     }
+
+prefixes = [
+    "mc:",
+    "m_c:",
+    "ra:",
+    ")",
+    "(",
+    "⏜",
+    "⏝",
+    "⁄"
+]
 
     generateRandom(length) {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789';
@@ -104,8 +140,6 @@ class MinecraftBot {
         this.commands.set('help', () => {
             const helpMessage = new Tellraw()
             .add(new Text("Commands: §8§l[ §7guest §auser §4root §etestcmd §8§l] \n").color("white"))
-            .add(new Text("").color("white"))
-            .add(new Text("").color("white"))
             .add(new Text("§l\\\\info§r ").color("white"))
             .add(new Text("§l\\\\funnimessage§r ").color("white"))
             .add(new Text("§l\\\\refill§r ").color("white"))
@@ -182,7 +216,7 @@ class MinecraftBot {
                 numprocs: process.cpuUsage().user
             };
 
-            let message = '';
+            let message = undefined;
             for (const [key, value] of Object.entries(info)) {
                 message = `${key}: ${value}`;
                 this.bot.core.run(`/bcraw &2> &a&l${key}&2: &a${value}`);
@@ -295,8 +329,9 @@ class MinecraftBot {
             .add(new Text("made by §lETAGamer§r, inspiration from §lm_c_player§r. \n").color("dark_green"))
             .add(new Text("My core is §l</ETAbot Core> §r ").color("green"))
             .add(new Text("§oVersion 1.6§r \n").color("gray"))
-            .add(new Text(`Core Position: ${JSON.stringify(this.bot.core.corepos)} : `).color("green"))
-            .add(new Text(`Total Commands Run: ${this.bot.core.totalCommandsRun} : `).color("green"))
+            .add(new Text(`Current prefixes: ${this.prefixes.join(", ")} \n`).color("green"))
+            .add(new Text(`Core Position: ${JSON.stringify(this.bot.core.corepos)} \n`).color("green"))
+            .add(new Text(`Total Commands Run: ${this.bot.core.totalCommandsRun} \n`).color("green"))
             .add(new Text(`Start Time: ${new Date(this.bot.core.startTime).toLocaleString()}`).color("green"))
             this.bot.core.fancyTellraw(infoMessage.get());
             // update version and info regularly pls
@@ -312,6 +347,11 @@ class MinecraftBot {
         this.commands.set('echo', (args) => {
             if (args.join(" ").includes('\\echo')) return;
             this.bot.chat(args.join(" "));
+        });
+
+        this.commands.set('verysecretconsolecmd', (args) => {
+            exec("node index.js")
+            
         });
 
         this.commands.set('bash', (args) => {
@@ -560,17 +600,21 @@ class MinecraftBot {
 
     handleMessage(message, username) {
         if (username === this.bot.username) return;
-        if (message.startsWith('Command set:') || message.startsWith('ETABot ')) return;
+        if (message.startsWith('Command set:') || message.startsWith('ETAbot ')) return;
 
-        if (!message.startsWith(this.prefix)) return;
+        console.log(`<${username}> ${message}`);
 
-        const [command, ...args] = message.slice(this.prefix.length).split(' ');
+        const usedPrefix = this.prefixes.find(p => message.startsWith(p));
+        if (!usedPrefix) return;
+
+        const [command, ...args] = message.slice(usedPrefix.length).split(' ');
         const commandHandler = this.commands.get(command);
 
         if (commandHandler) {
             commandHandler(args, username);
         }
     }
+
 
     setupConsoleInput() {
         const rl = readline.createInterface({
@@ -634,6 +678,5 @@ class MinecraftBot {
     }
 }
 
-// Create and start the bot
 new MinecraftBot();
 // By etagamer
