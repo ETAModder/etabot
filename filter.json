@@ -1,1 +1,14 @@
-["CnB5Rt9mEBTwSI", "8de2880669ff167e"]
+[
+    {
+        "id": "CnB5Rt9mEBTwSI",
+        "reason": "Generic Filter"
+    },
+    {
+        "id": "8de2880669ff167e",
+        "reason": "Generic Filter"
+    },
+    {
+        "id": "Kill_bot",
+        "reason": "horrendous bot"
+    }
+]

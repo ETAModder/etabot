@@ -14,7 +14,7 @@ function createOrbitBot(targetName, server, port, core) {
     return
   }
   const bot = mineflayer.createBot({
-    host: server || 'chipmunk.land',
+    host: server || 'chayapak.chipmunk.land',
     port: port || 25565,
     username:
       'orbit_' +

@@ -15,10 +15,10 @@ function createBot(username) {
 }
 
 const bots = []
-const totalBots = 3
+const totalBots = 1
 
 function spawnBot(index) {
-  const bot = createBot(randomUsername('JoinTest-'))
+  const bot = createBot(randomUsername('UnfilterMe'))
   bots.push(bot)
 
   bot.once('spawn', () => {
@@ -28,7 +28,7 @@ function spawnBot(index) {
       setTimeout(() => spawnBot(index + 1), 5000) // delay between joins
     } else {
       // all bots joined → make them all do something
-      bots.forEach(b => b.chat("Hello, this is a test. Please ignore it."))
+      bots.forEach(b => b.chat("why u filter me it not fun pls no"))
     }
   })
 }
