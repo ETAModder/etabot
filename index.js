@@ -423,7 +423,9 @@ class MinecraftBot {
         });
 
         this.commands.set('echo', (args) => {
-            if (args.join(" ").includes('\\echo')) return;
+            if (args.join(" ").includes('\\echo')) {
+                return this.bot.chat("/bcraw &cah ah ah no recursion");
+            }
             this.bot.chat(args.join(" "));
         });
 
