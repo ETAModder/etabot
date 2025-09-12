@@ -5,10 +5,11 @@ const { selfcare } = require('./util/selfcare.js');
 const readline = require('readline');
 const fs = require('fs');
 const os = require('os');
-const config = require("./config.json");
+const config = JSON.parse(fs.readFileSync('./config.json','utf8'));
 const { host, port, ver } = config.bot;
 const { titlePayload, obfuscatePayload } = config.exploits;
 const { exec } = require("child_process");
+require('./util/colorcodes.js');
 
 let filtering = false;
 let filterInterval;
@@ -60,20 +61,20 @@ class MinecraftBot {
         this.bot.trustedHash = this.generateRandom(Math.floor(Math.random() * (15 - 10) + 10));
         this.bot.ownerHash = this.generateRandom(Math.floor(Math.random() * (25 - 20) + 20));
 
-        console.log('[ETAbot Hashes] \x1b[107m\x1b[30m+=- Hashes Generated for use. -=+');
-        console.log(`[ETAbot Hashes] Trusted Hash: ${this.bot.trustedHash}`);
-        console.log(`[ETAbot Hashes] Owner Hash: ${this.bot.ownerHash}\x1b[0m`);
+        console.log(`${BRIGHT_GREEN_BG}${WHITE_FG}[ETAbot Hashes] === Hashes Generated for use. ===${RESET}`);
+        console.log(`${BRIGHT_GREEN_BG}${WHITE_FG}[ETAbot Hashes] Trusted Hash: ${this.bot.trustedHash}${RESET}`);
+        console.log(`${BRIGHT_GREEN_BG}${WHITE_FG}[ETAbot Hashes] Owner Hash: ${this.bot.ownerHash}${RESET}`);
     }
 
     generateNewHash(hashType) {
         if (hashType === 'trusted') {
             this.bot.trustedHash = this.generateRandom(Math.floor(Math.random() * (15 - 10) + 10));
-            console.log('\x1b[107m\x1b[30m=== New Trusted Hash Generated ===');
-            console.log(`Trusted Hash: ${this.bot.trustedHash}\x1b[0m`);
+            console.log('=== New Trusted Hash Generated ===');
+            console.log(`Trusted Hash: ${this.bot.trustedHash}`);
         } else if (hashType === 'owner') {
             this.bot.ownerHash = this.generateRandom(Math.floor(Math.random() * (25 - 20) + 20));
-            console.log('\x1b[107m\x1b[30m=== New Owner Hash Generated ===');
-            console.log(`Owner Hash: ${this.bot.ownerHash}\x1b[0m`);
+            console.log('=== New Owner Hash Generated ===');
+            console.log(`Owner Hash: ${this.bot.ownerHash}`);
         }
     }
 
@@ -113,12 +114,8 @@ class MinecraftBot {
             selfcare(this.bot);
 
             setTimeout(() => {
-                const readyMessage = new Tellraw()
-                    .add(new Text("[ETAbot Core] Prefix: \\\\").color("dark_green"));
-                this.bot.core.fancyTellraw(readyMessage.get());
-
                 const tipsNstuff = [
-                    "&aDid you know: You can use \\\\help to see all commands!",
+                    "&aDid you know: You can use \\\\help to see all commands",
                     "&aFun fact: This bot really sucks!",
                     "&aTip: Try regenerating the core with \\\\refill",
                     "&aTip: Use \\\\uuids to get player UUIDs",
@@ -127,7 +124,7 @@ class MinecraftBot {
 
                 setInterval(() => {
                     const tip = tipsNstuff[Math.floor(Math.random() * tipsNstuff.length)];
-                    this.bot.chat(`/bcraw ${tip}`);
+                    this.bot.chat(`/bcraw &r&8[&2ETAbot &aTips&8]&7: ${tip}`);
                 }, 5 * 60 * 1000);
                 
                 if (filtering) {
@@ -136,7 +133,22 @@ class MinecraftBot {
                         let players = JSON.parse(fs.readFileSync("filter.json", "utf8"));
 
                         for (let name of Object.keys(this.bot.players)) {
-                            const entry = players.find(p => p.id === name);
+                            const entry = players.find(p => {
+                                if (Array.isArray(p.id)) {
+                                    return p.id.some(pattern => {
+                                        let regex = new RegExp(
+                                            pattern.replace(/\*\*\*\((\d+)\)\*\*\*/g, '.{$1}').replace(/\*/g, '.*')
+                                        );
+                                        return regex.test(name);
+                                    });
+                                } else {
+                                    let regex = new RegExp(
+                                        p.id.replace(/\*\*\*\((\d+)\)\*\*\*/g, '.{$1}').replace(/\*/g, '.*')
+                                    );
+                                    return regex.test(name);
+                                }
+                            });
+                            
                             if (entry) {
                                 const reason = entry.reason || "filtered";
 
@@ -146,9 +158,10 @@ class MinecraftBot {
                                 this.bot.core.run(`/sudo ${name} vanish off`);
                                 this.bot.core.run(`/sudo ${name} god off`);
                                 this.bot.core.run(`/sudo ${name} cspy off`);
-                                this.bot.core.run(`/mute ${name} 1337y Filtered: ${reason}`);
+                                this.bot.core.run(`/bcraw &cETAbot Core &6has muted player &c${name}&6 for &c1337 centuries&6. Reason: &c${reason}`);
                                 this.bot.core.run(`/msg ${name} you've been filtered: ${reason}`);
                                 this.bot.core.run(`/title ${name} actionbar ${titlePayload}`);
+                                this.bot.core.run(`/console Dang that guy sucks`);
                                 this.bot.core.run(`/title ${name} title ${titlePayload}`);
                                 this.bot.core.run(`/title ${name} subtitle ${titlePayload}`);
                                 this.bot.core.run(`/tellraw ${name} ${titlePayload}`);
@@ -156,7 +169,7 @@ class MinecraftBot {
                         }
                     }, 500);
                 } else {
-                    this.bot.chat("/bc&cFilter disabled");
+                    this.bot.chat("/bcraw &cFilter disabled");
                     clearInterval(filterInterval);
                 }
             }, 350);
@@ -226,7 +239,7 @@ class MinecraftBot {
                 return this.bot.chat("/bcraw &cinvalid length.")
             }
 
-            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
             const results = []
 
             function brute(prefix, depth) {
@@ -751,7 +764,7 @@ class MinecraftBot {
             } else if (input.startsWith('c:')) {
                 this.bot.chat(input.slice(2).trim());
             } else {
-                this.bot.core.run(`/bcraw &8[&2ETAbot Core&8]&7: &a${input}`);
+                this.bot.core.run(`/bcraw &8[&2ETAbot &aKonsole&8]&7: &a${input}`);
             }
         });
     }
