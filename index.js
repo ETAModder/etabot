@@ -148,7 +148,7 @@ class MinecraftBot {
                                     return regex.test(name);
                                 }
                             });
-                            
+
                             if (entry) {
                                 const reason = entry.reason || "filtered";
 
