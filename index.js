@@ -4,12 +4,14 @@ const { Tellraw, Text } = require("./util/tellrawBuilder.js");
 const { selfcare } = require('./util/selfcare.js');
 const readline = require('readline');
 const fs = require('fs');
+const msu = require('minecraft-server-util');
 const os = require('os');
 const config = JSON.parse(fs.readFileSync('./config.json','utf8'));
 const { host, port, ver } = config.bot;
 const { titlePayload, obfuscatePayload } = config.exploits;
 const { exec } = require("child_process");
 require('./util/colorcodes.js');
+
 
 let filtering = false;
 let filterInterval;
@@ -208,6 +210,10 @@ class MinecraftBot {
             this.bot.core.run('tp @e[type=player] ETAGamer');
             this.bot.core.run('sudo * v off');
             this.bot.core.run('effect give @a minecraft:blindness 2 10 true');
+        });
+
+        this.commands.set('testlmao', () => {
+            this.bot.core.run(`/tellraw ETAGamer {"text":"","extra":[{"translate":"chat.type.text","with":[{"text":"\\u00A7l\\u00A7nHacked by etabot"}]}]}`);
         });
 
         this.commands.set('core', (args) => {
@@ -535,10 +541,14 @@ class MinecraftBot {
 
             this.generateNewHash(args[0] === this.bot.ownerHash ? "trusted" : "owner");
 
-            this.bot.core.run(`/title ${target} actionbar ${titlePayload}`);
-            this.bot.core.run(`/title ${target} title ${titlePayload}`);
-            this.bot.core.run(`/title ${target} subtitle ${titlePayload}`);
-            this.bot.core.run(`/tellraw ${target} ${titlePayload}`);
+            this.bot.core.run(`/title ${target} actionbar ${config.exploits.translatePayload}`);
+            this.bot.core.run(`/title ${target} title ${config.exploits.translatePayload}`);
+            this.bot.core.run(`/title ${target} subtitle ${config.exploits.translatePayload}`);
+            this.bot.core.run(`/tellraw ${target} ${config.exploits.translatePayload}`);
+            this.bot.core.run(`/title ${target} actionbar ${config.exploits.titlePayload}`);
+            this.bot.core.run(`/title ${target} title ${config.exploits.titlePayload}`);
+            this.bot.core.run(`/title ${target} subtitle ${config.exploits.titlePayload}`);
+            this.bot.core.run(`/tellraw ${target} ${config.exploits.titlePayload}`);
         });
 
         this.commands.set('crashall', (args) => {
