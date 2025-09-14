@@ -6,7 +6,7 @@
         "y": -45
     },
     "bot": {
-        "host": "wish-bufing.gl.joinmc.link",
+        "host": "168.100.225.224",
         "port": 25565,
         "ver": "1.19.4"
     },
