@@ -9,9 +9,9 @@ const config = JSON.parse(fs.readFileSync('./config.json','utf8'));
 const { host, port, ver } = config.bot;
 const { titlePayload, obfuscatePayload } = config.exploits;
 const { exec } = require("child_process");
+const { logMessage } = require('./util/msglogger.js');
 const utfPayload = "e\u00a7k" + "猫".repeat(31500) + "\u00a7rrekt";
 require('./util/colorcodes.js');
-
 
 let filtering = false;
 let filterInterval;
@@ -117,7 +117,10 @@ class MinecraftBot {
 
     setupEventHandlers() {
         this.bot._client.on('login', () => this.handleLogin());
-        this.bot.on('messagestr', (message, username) => this.handleMessage(message, username));
+        this.bot.on('messagestr', (message, username) => {
+			this.handleMessage(message, username);
+			logMessage(`[${username}] ${message}`);
+        });
         this.bot.on('error', (err) => console.error('Error:', err));
         this.bot.on('end', () => console.log('Bot has disconnected.'));
         this.bot.on('message', (jsonMsg) => console.log(`<server> ${jsonMsg.toString()}`));
