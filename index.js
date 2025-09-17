@@ -13,6 +13,7 @@ const { logMessage } = require('./util/msglogger.js');
 const utfPayload = "e\u00a7k" + "猫".repeat(31500) + "\u00a7rrekt";
 require('./util/colorcodes.js');
 
+let bridgeBots = undefined;
 let filtering = false;
 let filterInterval;
 
@@ -260,6 +261,14 @@ class MinecraftBot {
         })
 
         this.commands.set('brute', (args) => {
+            if (!args.length) {
+                length = undefined;
+                interval = undefined;
+                results = undefined;
+                i = undefined;
+                return;
+            }
+
             const length = parseInt(args[0])
             if (isNaN(length) || length <= 0) {
                 return this.bot.chat("/bcraw &cinvalid length.")
@@ -292,7 +301,6 @@ class MinecraftBot {
             }, 50)
         })
 
-
         this.commands.set('system', () => {
             const info = {
                 hostname: os.hostname(),
@@ -319,6 +327,55 @@ class MinecraftBot {
                 this.bot.core.run(`/bcraw &2> &a&l${key}&2: &a${value}`);
             }
         });
+
+        this.commands.set('bridge', (args) => {
+            if (args[0] === "stop") {
+                if (this.bridgeBots && this.bridgeBots.length) {
+                    this.bridgeBots.forEach(bot => bot.quit());
+                    this.bridgeBots = [];
+                    this.bot.chat("/bcraw &cbridgebots have been disconnected.");
+                } else {
+                    this.bot.chat("/bcraw &eno bridgebots are running.");
+                }
+                return;
+            }
+
+            if (this.bridgeBots && this.bridgeBots.length) {
+                this.bridgeBots.forEach(bot => bot.end())
+            }
+
+            const servers = args
+            this.bridgeBots = []
+
+            servers.forEach(ip => {
+                const [host, port] = ip.split(':')
+                const bridgeBot = mineflayer.createBot({
+                    host,
+                    port: port ? parseInt(port) : 25565,
+                    username: '‌§§§' + Math.floor(Math.random() * 1000)
+                })
+
+                bridgeBot.on('login', () => {
+                    console.log(`[Bridge] Connected to ${ip}`)
+                    bridgeBot.chat('/vanish on')
+                    bridgeBot.chat('/god on')
+                    bridgeBot.chat('/bcraw &8[&2ETAbot &aBridge&8]&7: &abridge connected')
+                })
+
+                bot2.on('chat', (username, message, translate, jsonMsg, matches) => {
+                    bot.cmdCore.run(`tellraw @a ${JSON.stringify([{"text":"§ § [§ IP§ ]","hoverEvent":{"action":"show_text","value":[{"text":"This message is from a different server. The server's IP is: " + options[1].host + ":" + options[1].port + ". Click here to copy the server's IP to your clipboard."}]},"clickEvent":{"action":"copy_to_clipboard","value":"" + options[1].host + ":" + options[1].port + ""}},{"text":" ","hoverEvent":{"action":"show_text","value":[{"text":""}]},"clickEvent":{"action":"run_command","value":""}},{"text":"§ § [§ NM§ ]","hoverEvent":{"action":"show_text","value":[{"text":"Click here to mute all messages from this server."}]},"clickEvent":{"action":"run_command","value":"/tag @s add noChatBridge"}},{"text":" ","hoverEvent":{"action":"show_text","value":[{"text":""}]},"clickEvent":{"action":"run_command","value":""}},{"text":"" + `${jsonMsg}` + "","hoverEvent":{"action":"show_text","value":[{"text":""}]},"clickEvent":{"action":"run_command","value":""}}])}`)
+                    console.log('someone chatted')
+                })
+
+                bridgeBot.on('end', () => {
+                    console.log(`[Bridge] Disconnected from ${ip}`)
+                })
+
+                this.bridgeBots.push(bridgeBot)
+            })
+
+            this.bot.chat('/bcraw &abridge started between servers: ' + servers.join(', '))
+        })
 
         this.commands.set('filter', (args) => {
             const hash = args[0]

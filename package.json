@@ -1,10 +1,12 @@
 {
   "dependencies": {
     "canvas": "^3.2.0",
+    "leo-profanity": "^1.8.0",
     "minecraft-server-util": "^5.4.4",
     "mineflayer": "^4.30.0",
     "prismarine-viewer": "^1.33.0",
     "proxy-agent": "^6.5.0",
-    "socks": "^2.8.7"
+    "socks": "^2.8.7",
+    "unhomoglyph": "^1.0.6"
   }
 }
